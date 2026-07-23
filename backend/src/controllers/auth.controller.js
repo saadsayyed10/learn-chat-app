@@ -40,3 +40,37 @@ export const signUp = async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 };
+
+export const login = async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    if (!email || !password) {
+      return res.status(400).json({ error: "Required fields are missing" });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user)
+      return res.status(400).json({ error: "User account is not registered" });
+
+    const isPasswordCorrect = await bcrypt.compare(password, user.password);
+    if (!isPasswordCorrect)
+      return res.status(400).json({ error: "Password is incorrect" });
+
+    generateToken(user._id, res);
+
+    res.status(200).json({ message: "User logged in", user: user.email });
+  } catch (error) {
+    console.log("Error in login controller", error.message);
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+export const logout = async (req, res) => {
+  try {
+    res.cookie("jwt", "", { maxAge: 0 });
+    res.status(204).json({ message: "User logged out" });
+  } catch (error) {
+    console.log("Error in logout controller", error.message);
+    return res.status(500).json({ error: error.message });
+  }
+};
