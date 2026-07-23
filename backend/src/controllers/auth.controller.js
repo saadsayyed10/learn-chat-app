@@ -1,9 +1,14 @@
 import bcrypt from "bcryptjs";
 import User from "../models/user.model.js";
+import { generateToken } from "../lib/token.js";
 
 export const signUp = async (req, res) => {
   const { fullName, email, password } = req.body;
   try {
+    if (!email || !fullName || !password) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
     if (password.length < 6) {
       return res
         .status(400)
@@ -23,8 +28,15 @@ export const signUp = async (req, res) => {
     });
 
     if (newUser) {
+      generateToken(newUser._id, res);
+      await newUser.save();
+
+      res.status(201).json({ message: "New user registered", user: newUser });
     } else {
-      res.status(400).json({ error: "Invalid user data" });
+      return res.status(400).json({ error: "Invalid user data" });
     }
-  } catch (error) {}
+  } catch (error) {
+    console.log("Error in signUp controller", error.message);
+    return res.status(500).json({ error: error.message });
+  }
 };
