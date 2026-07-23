@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import User from "../models/user.model.js";
 import { generateToken } from "../lib/token.js";
+import cloudinary from "../lib/cloudinary.js";
 
 export const signUp = async (req, res) => {
   const { fullName, email, password } = req.body;
@@ -71,6 +72,39 @@ export const logout = async (req, res) => {
     res.status(204).json({ message: "User logged out" });
   } catch (error) {
     console.log("Error in logout controller", error.message);
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+export const updateProfile = async (req, res) => {
+  const { profilePic } = req.body;
+
+  try {
+    if (!profilePic) {
+      res.status(400).json({ error: "Profile pic is required" });
+    }
+
+    const userId = req.user._id;
+    if (!userId)
+      return res
+        .status(401)
+        .json({ error: "Unauthorized - token not provided" });
+
+    const uploadResponse = await cloudinary.uploader.upload(profilePic);
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { profilePic: uploadResponse.secure_url },
+      { new: true },
+    );
+
+    res
+      .status(200)
+      .json({
+        message: "User profile picture updated",
+        user: updatedUser.email,
+      });
+  } catch (error) {
+    console.log("Error in updateProfile controller", error.message);
     return res.status(500).json({ error: error.message });
   }
 };
