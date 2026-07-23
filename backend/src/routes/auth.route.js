@@ -8,6 +8,8 @@ authRoutes.post("/signUp", controllers.signUp);
 authRoutes.post("/login", controllers.login);
 authRoutes.post("/logout", controllers.logout);
 
+authRoutes.get("/check", protectRoute, controllers.checkAuth);
+
 authRoutes.put("/update-profile", protectRoute, controllers.updateProfile);
 
 export default authRoutes;

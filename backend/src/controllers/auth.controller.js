@@ -97,14 +97,21 @@ export const updateProfile = async (req, res) => {
       { new: true },
     );
 
-    res
-      .status(200)
-      .json({
-        message: "User profile picture updated",
-        user: updatedUser.email,
-      });
+    res.status(200).json({
+      message: "User profile picture updated",
+      user: updatedUser.email,
+    });
   } catch (error) {
     console.log("Error in updateProfile controller", error.message);
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+export const checkAuth = async (req, res) => {
+  try {
+    res.status(200).json(req.user);
+  } catch (error) {
+    console.log("Error in checkAuth controller", error.message);
     return res.status(500).json({ error: error.message });
   }
 };
