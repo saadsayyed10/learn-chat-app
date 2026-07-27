@@ -10,6 +10,7 @@ import { useAuthStore } from "./store/useAuthStore.js";
 import { useEffect } from "react";
 
 import { Loader } from "lucide-react";
+import { Toaster } from "react-hot-toast";
 
 const App = () => {
   const { checkAuth, authUser, isCheckingAuth } = useAuthStore();
@@ -53,6 +54,8 @@ const App = () => {
 
         <Route path="/settings" element={<SettingsPage />} />
       </Routes>
+
+      <Toaster />
     </div>
   );
 };
